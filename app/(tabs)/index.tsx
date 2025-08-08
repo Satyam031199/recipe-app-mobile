@@ -1,75 +1,209 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from "react";
+import {
+  getCategories,
+  getRandomMeals,
+  getRandomMeal,
+  transformMealData,
+  filterByCategory,
+} from "@/services/mealAPI";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  FlatList,
+  RefreshControl,
+} from "react-native";
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { homeStyles } from "@/assets/styles/home.styles";
+import { Ionicons } from "@expo/vector-icons";
+import { COLORS } from "@/constants/colors";
+import CategoryFilter from "@/components/CategoryFilter";
+import RecipeCard from "@/components/RecipeCard";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-
-export default function HomeScreen() {
+const HomeScreen = () => {
+  const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [refreshing, setRefreshing] = useState(false);
+  const queryClient = useQueryClient();
+  const {
+    data: categories,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+  });
+  const {
+    data: recipes,
+    isLoading: recipesLoading,
+    error: recipesError,
+  } = useQuery({
+    queryKey: ["meals", selectedCategory],
+    queryFn: () =>
+      selectedCategory === "All"
+        ? getRandomMeals(12)
+        : filterByCategory(selectedCategory),
+  });
+  const {
+    data: featuredMeal,
+    isLoading: featuredLoading,
+    error: featuredError,
+  } = useQuery({
+    queryKey: ["featuredMeal"],
+    queryFn: getRandomMeal,
+  });
+  const handleCategorySelect = (category: string) =>
+    setSelectedCategory(category);
+  if (categoriesLoading || recipesLoading || featuredLoading) {
+    return (
+        <LoadingSpinner message="Loading delicious recipes..."/>
+    );
+  }
+  const transformedFeaturedMeal = featuredMeal
+    ? transformMealData(featuredMeal)
+    : null;
+  const transformedMeals = recipes
+    ?.map((meal: any) => transformMealData(meal))
+    .filter((meal: any) => meal !== null);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["meals", selectedCategory] }),
+      queryClient.invalidateQueries({ queryKey: ["featuredMeal"] }),
+    ]);
+    setRefreshing(false);
+  };
+  if (categoriesError || recipesError || featuredError) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Error loading data. Please try again.</Text>
+      </View>
+    );
+  }
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
-}
+    <View style={homeStyles.container}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={homeStyles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={COLORS.primary}
+          />
+        }
+      >
+        {/* FEATURED SECTION */}
+        {transformedFeaturedMeal && (
+          <View style={homeStyles.featuredSection}>
+            <TouchableOpacity
+              style={homeStyles.featuredCard}
+              activeOpacity={0.9}
+              onPress={() => router.push(`/recipe/${transformedFeaturedMeal.id}` as any)}
+            >
+              <View style={homeStyles.featuredImageContainer}>
+                <Image
+                  source={{ uri: transformedFeaturedMeal.image }}
+                  style={homeStyles.featuredImage}
+                  contentFit="cover"
+                  transition={500}
+                />
+                <View style={homeStyles.featuredOverlay}>
+                  <View style={homeStyles.featuredBadge}>
+                    <Text style={homeStyles.featuredBadgeText}>Featured</Text>
+                  </View>
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+                  <View style={homeStyles.featuredContent}>
+                    <Text style={homeStyles.featuredTitle} numberOfLines={2}>
+                      {transformedFeaturedMeal.title}
+                    </Text>
+
+                    <View style={homeStyles.featuredMeta}>
+                      <View style={homeStyles.metaItem}>
+                        <Ionicons
+                          name="time-outline"
+                          size={16}
+                          color={COLORS.white}
+                        />
+                        <Text style={homeStyles.metaText}>
+                          {transformedFeaturedMeal.cookTime}
+                        </Text>
+                      </View>
+                      <View style={homeStyles.metaItem}>
+                        <Ionicons
+                          name="people-outline"
+                          size={16}
+                          color={COLORS.white}
+                        />
+                        <Text style={homeStyles.metaText}>
+                          {transformedFeaturedMeal.servings}
+                        </Text>
+                      </View>
+                      {transformedFeaturedMeal.area && (
+                        <View style={homeStyles.metaItem}>
+                          <Ionicons
+                            name="location-outline"
+                            size={16}
+                            color={COLORS.white}
+                          />
+                          <Text style={homeStyles.metaText}>
+                            {transformedFeaturedMeal.area}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
+        {/* CATEGORIES */}
+        {categories.length > 0 && (
+          <CategoryFilter
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={handleCategorySelect}
+          />
+        )}
+        {/* RECIPES */}
+        <View style={homeStyles.recipesSection}>
+          <View style={homeStyles.sectionHeader}>
+            <Text style={homeStyles.sectionTitle}>
+              {selectedCategory.toUpperCase()} RECIPES
+            </Text>
+          </View>
+
+          <FlatList
+            data={transformedMeals}
+            renderItem={({ item }) => <RecipeCard recipe={item} />}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={2}
+            columnWrapperStyle={homeStyles.row}
+            contentContainerStyle={homeStyles.recipesGrid}
+            scrollEnabled={false}
+            ListEmptyComponent={
+              <View style={homeStyles.emptyState}>
+                <Ionicons
+                  name="restaurant-outline"
+                  size={64}
+                  color={COLORS.textLight}
+                />
+                <Text style={homeStyles.emptyTitle}>No recipes found</Text>
+                <Text style={homeStyles.emptyDescription}>
+                  Try a different category
+                </Text>
+              </View>
+            }
+          />
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+export default HomeScreen;

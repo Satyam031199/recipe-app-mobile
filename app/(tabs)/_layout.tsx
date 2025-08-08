@@ -1,45 +1,117 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import { useAuth } from "@clerk/clerk-expo";
+import { Redirect, Tabs } from "expo-router";
+import { ImageSourcePropType, Text, View, Image } from "react-native";
+import cn from "clsx";
+import { COLORS } from "@/constants/colors";
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+interface TabBarIconProps {
+  focused: boolean;
+  icon: ImageSourcePropType;
+  title: string;
+}
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+const TabBarIcon = ({ focused, icon, title }: TabBarIconProps) => (
+  <View className="flex min-w-20 items-center justify-center min-h-full gap-1 mt-12">
+    <Image
+      source={icon}
+      className="size-7"
+      resizeMode="contain"
+      tintColor={focused ? COLORS.primary : "#5D5F6D"}
+    />
+    <Text
+      className={cn(
+        "text-sm font-bold",
+        focused ? `text-[${COLORS.textLight}]` : "text-gray-300"
+      )}
+    >
+      {title}
+    </Text>
+  </View>
+);
 
+const TabsLayout = () => {
+  const { isSignedIn, isLoaded } = useAuth();
+  if (!isLoaded) return null;
+  if (!isSignedIn) {
+    return <Redirect href={"/(auth)/sign-in" as any} />;
+  }
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          // borderTopLeftRadius: 50,
+          // borderTopRightRadius: 50,
+          // borderBottomLeftRadius: 50,
+          // borderBottomRightRadius: 50,
+          //marginHorizontal: 20,
+          // height: 80,
+          // position: 'absolute',
+          // bottom: 30,
+          backgroundColor: "white",
+          shadowColor: "#1a1a1a",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 5,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: "Home",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              title="Home"
+              icon={require("@/assets/images/home.png")}
+              focused={focused}
+            />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="search"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: "Search",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              title="Search"
+              icon={require("@/assets/images/search.png")}
+              focused={focused}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="favourites"
+        options={{
+          title: "Favourites",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              title="Favourites"
+              icon={require("@/assets/images/bookmark.png")}
+              focused={focused}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              title="Profile"
+              icon={require("@/assets/images/profile.png")}
+              focused={focused}
+            />
+          ),
         }}
       />
     </Tabs>
   );
-}
+};
+
+export default TabsLayout;
