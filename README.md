@@ -1,50 +1,146 @@
-# Welcome to your Expo app 👋
+# Recipe App 📱
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, cross-platform Recipe App built with **Expo** and **React Native**. Discover delicious recipes from TheMealDB, watch cooking tutorials, and save your favorites with a beautiful, intuitive interface.
 
-## Get started
+## ✨ Features
 
-1. Install dependencies
+- **🍽️ Recipe Discovery**: Browse and search thousands of recipes from TheMealDB
+- **📖 Rich Recipe Details**: View ingredients, instructions, cook time, servings, and cuisine origin
+- **🎥 Video Tutorials**: Watch embedded YouTube cooking tutorials directly in the app
+- **🔐 Authentication**: Secure sign-in/sign-up with Clerk
+- **❤️ Favorites**: Save and manage your favorite recipes with backend sync
+- **🎨 Modern UI**: Beautiful gradients, smooth animations, and intuitive navigation
+- **📱 Cross-Platform**: Works on iOS, Android, and Web
 
+## 🛠️ Tech Stack
+
+### Core Framework
+- **Expo** - React Native development platform
+- **React Native** - Cross-platform mobile development
+- **TypeScript** - Type-safe JavaScript
+
+### Navigation & Routing
+- **Expo Router** - File-based routing system
+- **React Navigation** - Tab navigation and screen transitions
+- **React Native Gesture Handler** - Smooth touch interactions
+
+### Data Management
+- **TanStack Query** - Server state management and caching
+- **React Hook Form** - Form handling and validation
+- **Zod** - Schema validation
+
+### Authentication
+- **Clerk** - User authentication and session management
+- **Expo Secure Store** - Secure token storage
+
+### UI & Media
+- **Expo Image** - High-performance image loading
+- **Expo Vector Icons** - Icon library (Ionicons)
+- **Expo Linear Gradient** - Beautiful gradient effects
+- **React Native WebView** - Embedded video playback
+- **React Native Toast Message** - In-app notifications
+- **Expo Haptics** - Tactile feedback
+
+### Styling
+- **NativeWind** - Utility-first CSS framework
+- **Tailwind CSS** - Design system
+
+### Development Tools
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+- Expo CLI
+- iOS Simulator (for iOS development)
+- Android Studio (for Android development)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd recipe-app/mobile
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. Start the app
+3. **Environment Setup**
+   - Create a `.env` file in the mobile directory
+   - Add your Clerk publishable key:
+     ```
+     EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_key_here
+     ```
 
+4. **Start the development server**
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+5. **Run on your preferred platform**
+   - Press `i` for iOS Simulator
+   - Press `a` for Android Emulator
+   - Press `w` for Web browser
+   - Scan QR code with Expo Go app on your device
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 📱 App Structure
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+mobile/
+├── app/                    # File-based routing
+│   ├── (auth)/            # Authentication screens
+│   ├── (tabs)/            # Main tab navigation
+│   └── recipe/            # Recipe detail screens
+├── components/            # Reusable UI components
+├── services/              # API services and utilities
+├── constants/             # App constants and configurations
+├── assets/                # Images, fonts, and styles
+└── types/                 # TypeScript type definitions
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🔧 Available Scripts
 
-## Learn more
+- `npm start` - Start the Expo development server
+- `npm run android` - Run on Android emulator
+- `npm run ios` - Run on iOS simulator
+- `npm run web` - Run in web browser
+- `npm run lint` - Run ESLint
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🌐 API Integration
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- **TheMealDB** - Recipe data and images
+- **YouTube** - Embedded video tutorials
+- **Custom Backend** - Favorites management
 
-## Join the community
+## 📸 Screenshots
 
-Join our community of developers creating universal apps.
+*Add screenshots of your app here*
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [TheMealDB](https://www.themealdb.com/) for recipe data
+- [Expo](https://expo.dev/) for the amazing development platform
+- [Clerk](https://clerk.dev/) for authentication
+- [React Native](https://reactnative.dev/) community
+
+---
+
+Made with ❤️ using Expo and React Native
