@@ -18,6 +18,7 @@ import { authStyles } from "@/assets/styles/auth.styles";
 import { Image } from "expo-image";
 import { COLORS } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email format").min(1, "Email is required"),
@@ -152,6 +153,33 @@ const SignInScreen = () => {
             <TouchableOpacity style={[authStyles.authButton, isLoading && authStyles.buttonDisabled]} onPress={handleSubmit(onSubmit)} disabled={isLoading} activeOpacity={0.8}>
               <Text style={authStyles.buttonText}>{isLoading ? "Signing In..." : "Sign In"}</Text>
             </TouchableOpacity>
+            
+            {/* Divider */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }}>
+              <View style={{ flex: 1, height: 1, backgroundColor: COLORS.textLight, opacity: 0.3 }} />
+              <Text style={{ marginHorizontal: 16, color: COLORS.textLight, fontSize: 14 }}>OR</Text>
+              <View style={{ flex: 1, height: 1, backgroundColor: COLORS.textLight, opacity: 0.3 }} />
+            </View>
+            
+            {/* Google Sign In Button */}
+            <GoogleSignInButton
+              onSuccess={() => {
+                Toast.show({
+                  type: "success",
+                  text1: "Successfully signed in with Google",
+                });
+              }}
+              onError={(error) => {
+                Toast.show({
+                  type: "error",
+                  text1: "Google sign-in failed",
+                  text2: error,
+                });
+              }}
+              isLoading={isLoading}
+              disabled={isLoading}
+            />
+            
             {/* Sign Up Link */}
             <TouchableOpacity style={authStyles.linkContainer} onPress={() => router.push("/(auth)/sign-up")}>
               <Text style={authStyles.linkText}>

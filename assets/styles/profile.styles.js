@@ -208,11 +208,12 @@ export const profileStyles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
+    marginLeft: 10
   },
   planText: {
     fontSize: 10,
     fontWeight: "600",
     color: COLORS.white,
-    textTransform: "uppercase",
+    textTransform: "uppercase"
   },
 });

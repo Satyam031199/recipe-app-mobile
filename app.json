@@ -10,14 +10,16 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "usesNonExemptEncryption": false
+      "usesNonExemptEncryption": false,
+      "bundleIdentifier": "com.yourcompany.recipeapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.yourcompany.recipeapp"
     },
     "web": {
       "bundler": "metro",

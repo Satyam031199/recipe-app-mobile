@@ -5,25 +5,22 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import { profileStyles } from "@/assets/styles/profile.styles";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants/colors";
-import { dummyUser } from "@/constants/dummyUser";
 import { formatDate, getProviderIcon, getProviderName } from "@/services/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getFavourites } from "@/services/favouritesAPI";
-import Toast from "react-native-toast-message";
 
 const ProfileScreen = () => {
   const { signOut } = useClerk();
-  const { user, isLoaded: userLoading } = useUser();
+  const { user: currentUser, isLoaded: userLoading } = useUser();
   const {
     data: favouriteRecipes,
     isLoading: favouriteRecipesLoading,
     error: favouriteRecipesError,
   } = useQuery({
     queryKey: ["favourites"],
-    queryFn: () => getFavourites(user?.id),
-    enabled: !!user?.id,
+    queryFn: () => getFavourites(currentUser?.id),
+    enabled: !!currentUser?.id,
   });
-  const currentUser = dummyUser;
   if (favouriteRecipesLoading) {
     return <LoadingSpinner />;
   }
@@ -47,16 +44,18 @@ const ProfileScreen = () => {
             {/* Avatar and Basic Info */}
             <View style={profileStyles.avatarContainer}>
               <Image
-                source={{ uri: currentUser.imageUrl }}
+                source={{ uri: currentUser?.imageUrl }}
                 style={profileStyles.avatar}
               />
-              <Text style={profileStyles.fullName}>{currentUser.fullName}</Text>
+              <Text style={profileStyles.fullName}>
+                {currentUser?.fullName}
+              </Text>
               <Text style={profileStyles.email}>
-                {currentUser.emailAddresses[0].emailAddress}
+                {currentUser?.primaryEmailAddress?.emailAddress}
               </Text>
 
               {/* Verification Badge */}
-              {currentUser.emailAddresses[0].verification.status ===
+              {currentUser?.primaryEmailAddress?.verification.status ===
                 "verified" && (
                 <View style={profileStyles.verificationBadge}>
                   <Ionicons
@@ -74,37 +73,34 @@ const ProfileScreen = () => {
               <View style={profileStyles.infoRow}>
                 <Text style={profileStyles.infoLabel}>Username</Text>
                 <Text style={profileStyles.infoValue}>
-                  {currentUser.username || "Not set"}
+                  {currentUser?.username || "Not set"}
                 </Text>
               </View>
 
               <View style={profileStyles.infoRow}>
                 <Text style={profileStyles.infoLabel}>First Name</Text>
                 <Text style={profileStyles.infoValue}>
-                  {currentUser.firstName}
+                  {currentUser?.firstName}
                 </Text>
               </View>
 
               <View style={profileStyles.infoRow}>
                 <Text style={profileStyles.infoLabel}>Last Name</Text>
                 <Text style={profileStyles.infoValue}>
-                  {currentUser.lastName}
+                  {currentUser?.lastName}
                 </Text>
               </View>
 
-              <View style={profileStyles.infoRow}>
-                <Text style={profileStyles.infoLabel}>Gender</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  paddingVertical: 12,
+                }}
+              >
+                <Text style={profileStyles.infoLabel}>Member Since</Text>
                 <Text style={profileStyles.infoValue}>
-                  {currentUser.gender || "Not specified"}
-                </Text>
-              </View>
-
-              <View style={profileStyles.infoRow}>
-                <Text style={profileStyles.infoLabel}>Birthday</Text>
-                <Text style={profileStyles.infoValue}>
-                  {currentUser.birthday
-                    ? formatDate(currentUser.birthday)
-                    : "Not set"}
+                  {formatDate(new Date(currentUser?.createdAt!).getTime())}
                 </Text>
               </View>
             </View>
@@ -139,7 +135,8 @@ const ProfileScreen = () => {
             </View>
             <Text style={profileStyles.statValue}>
               {Math.floor(
-                (Date.now() - currentUser.createdAt) / (1000 * 60 * 60 * 24)
+                (Date.now() - new Date(currentUser?.createdAt!).getTime()) /
+                  (1000 * 60 * 60 * 24)
               )}
             </Text>
             <Text style={profileStyles.statLabel}>Days Active</Text>
@@ -159,7 +156,7 @@ const ProfileScreen = () => {
               />
             </View>
             <Text style={profileStyles.statValue}>
-              {currentUser.twoFactorEnabled ? "Yes" : "No"}
+              {currentUser?.twoFactorEnabled ? "Yes" : "No"}
             </Text>
             <Text style={profileStyles.statLabel}>2FA Enabled</Text>
           </View>
@@ -170,7 +167,7 @@ const ProfileScreen = () => {
           <View style={profileStyles.accountCard}>
             <Text style={profileStyles.accountTitle}>Account Details</Text>
 
-            {/* Plan Badge */}
+            {/* Account Status */}
             <View
               style={{
                 flexDirection: "row",
@@ -187,17 +184,20 @@ const ProfileScreen = () => {
                   marginBottom: 0,
                 }}
               >
-                Plan
+                Status
               </Text>
               <View style={profileStyles.planBadge}>
                 <Text style={profileStyles.planText}>
-                  {currentUser.publicMetadata.plan}
+                  {currentUser?.primaryEmailAddress?.verification.status ===
+                  "verified"
+                    ? "Verified"
+                    : "Unverified"}
                 </Text>
               </View>
             </View>
 
             {/* Connected Accounts */}
-            {currentUser.externalAccounts.map((account, index) => (
+            {currentUser?.externalAccounts.map((account, index) => (
               <View key={account.id} style={profileStyles.accountItem}>
                 <View style={profileStyles.accountIcon}>
                   <Ionicons
@@ -223,7 +223,7 @@ const ProfileScreen = () => {
             ))}
 
             {/* Email Addresses */}
-            {currentUser.emailAddresses.map((email, index) => (
+            {currentUser?.emailAddresses.map((email, index) => (
               <View key={email.id} style={profileStyles.accountItem}>
                 <View style={profileStyles.accountIcon}>
                   <Ionicons name="mail" size={16} color={COLORS.primary} />
@@ -243,6 +243,29 @@ const ProfileScreen = () => {
                 )}
               </View>
             ))}
+
+            {/* Additional Account Info */}
+            <View style={profileStyles.infoRow}>
+              <Text style={profileStyles.infoLabel}>Last Sign In</Text>
+              <Text style={profileStyles.infoValue}>
+                {currentUser?.lastSignInAt
+                  ? formatDate(new Date(currentUser?.lastSignInAt).getTime())
+                  : "Never"}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingVertical: 12
+              }}
+            >
+              <Text style={profileStyles.infoLabel}>Account Updated</Text>
+              <Text style={profileStyles.infoValue}>
+                {formatDate(new Date(currentUser?.updatedAt!).getTime())}
+              </Text>
+            </View>
           </View>
         </View>
       </ScrollView>
